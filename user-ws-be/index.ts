@@ -20,11 +20,6 @@ interface MessageInput {
     }
 }
 
-type ParsedDataType = {
-    roomId: string;
-    message: string;
-}
-
 const rooms: Record<string, Room> = {};
 
 // relayerWss is the client ws server that connects to the relayer-ws:
@@ -33,21 +28,19 @@ const relayerWss = new WebSocket("ws://localhost:3001");
 relayerWss.onopen = () => {
     console.log('conection established with the relayer');
     relayerWss.onmessage = ({data}) => {
-        const parsedData: ParsedDataType = JSON.parse(data);
+        const parsedData: MessageInput = JSON.parse(data);
         console.log(parsedData);
             
         // we have to braodcast the message to all the sockets in the room:
-        const room = parsedData.roomId;
+        const room = parsedData.payload.roomId;
         if(rooms[room]){
             rooms[room].sockets.forEach((socket) => {
                 console.log('sent');
-                socket.send(JSON.stringify(parsedData));
+                socket.send(JSON.stringify(parsedData.payload));
             })
         }       
     }
 }
-
-
 
 wss.on("connection", (ws: WsWebSocket) => {
     ws.on("error", console.error);
@@ -74,12 +67,13 @@ wss.on("connection", (ws: WsWebSocket) => {
             if (rooms[room]) {
                 rooms[room].sockets.push(ws);
             }
+            relayerWss.send(JSON.stringify(parsedMessage));
             console.log(rooms);
         }
 
         else if(parsedMessage.type == MessageInputType.chat){
             console.log('control reached here');
-            relayerWss.send(JSON.stringify(parsedMessage.payload));
+            relayerWss.send(JSON.stringify(parsedMessage));
         }
     })
 })
