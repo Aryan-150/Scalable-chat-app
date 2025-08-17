@@ -1,6 +1,6 @@
-- Architecture using user-ws-be & relayer-ws:
+- ### Architecture using user-ws-be & relayer-ws:
   ![Scalable Chat App](image.png)
-- Architecture using express-be & worker: V1 implementation of redis as a queue.
+- ### Architecture using express-be & worker: V1 implementation of redis as a queue.
   ![V1: redis as a queue](image-1.png)
 
 # Assignments
