@@ -1,6 +1,7 @@
 import { WebSocketServer, WebSocket as WsWebSocket } from "ws";
 
-const wss = new WebSocketServer({ port: 8081 });
+const PORT: number = 8080;
+const wss = new WebSocketServer({ port: PORT });
 
 //? what will be our in memory state:
 enum MessageInputType {
@@ -28,6 +29,7 @@ const relayerWss = new WebSocket("ws://localhost:3001");
 relayerWss.onopen = () => {
     console.log('conection established with the relayer');
     relayerWss.onmessage = ({data}) => {
+        console.log(`msg received at port: ${PORT}`);
         const parsedData: MessageInput = JSON.parse(data);
         console.log(parsedData);
             
@@ -45,6 +47,8 @@ relayerWss.onopen = () => {
 wss.on("connection", (ws: WsWebSocket) => {
     ws.on("error", console.error);
     ws.on("close", (code) => {
+        // remove the client/ws form the "rooms":
+        
         console.log('socket closed with code: ' + code);
     })
 
@@ -64,11 +68,10 @@ wss.on("connection", (ws: WsWebSocket) => {
                     sockets: []
                 }
             }
-            if (rooms[room]) {
+            if (rooms[room] && !rooms[room].sockets.includes(ws)) {
                 rooms[room].sockets.push(ws);
+                relayerWss.send(JSON.stringify(parsedMessage));
             }
-            relayerWss.send(JSON.stringify(parsedMessage));
-            console.log(rooms);
         }
 
         else if(parsedMessage.type == MessageInputType.chat){
@@ -77,21 +80,4 @@ wss.on("connection", (ws: WsWebSocket) => {
         }
     })
 })
-
-
-/**
- * rooms = { 
- *   "blue": { sockets: [ s1, s2, s3, ... ] },
- *   "brown": { sockets: [ s1,s2,s3,... ] },
- *   .....
- * }
- *
- * {
- *   type: "join",
- *   payload: {
- *     roomId: "blue"
- *   },
- * }
- * 
- */
 

@@ -15,12 +15,12 @@ interface MessageInput {
     }
 }
 
-const servers: WebSocket[] = []
+// const servers: WebSocket[] = []
 const clientsInRoom: Record<string, WebSocket[]> = {};
 
 wss.on("connection", (ws) => {
     console.log('hello websocket');
-    servers.push(ws);
+    // servers.push(ws);
     
     ws.on("message", (data, isBinary) => {
         console.log('control reached here');
@@ -55,28 +55,3 @@ wss.on("connection", (ws) => {
     })
 })
 
-/**
- * {
- *     roomId: "blue",
- *     message: "hi there"
- * }
- * 
- * {
- *   type: "join",
- *   payload: {
- *     "roomId": "blue"
- *   }
- * }
- * 
- * const clientsInRoom = Record<string, WebSocket[]>
- * {
- *   "blue": [ ws1, ws2, .. ],
- *   "red": [ ws4, ws6 ],
- *   ....
- * }
- * 
- * {
- *   server: WebSocket,
- *   rooms: string[]
- * }
- */
