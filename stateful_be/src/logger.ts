@@ -1,9 +1,9 @@
 // it supposed to log the state of "games" every 5secs
 
-import { games } from "./store";
+import { gameManager } from "./store";
 
 export const logger = () => {
   setInterval(() => {
-    console.log(games);
+    gameManager.logGames();
   }, 5000)
 }
